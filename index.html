@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AnModz - Free Fire Menu</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #000000; color: #ffffff; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; overflow: hidden; }
+        
+        /* MÀN HÌNH CHÀO HIỆU ỨNG NỔ TƯNG BỪNG + ÂM THANH */
+        #splashScreen { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: radial-gradient(circle, #111111 0%, #000000 100%); 
+            display: flex; justify-content: center; align-items: center; 
+            z-index: 999; transition: opacity 0.8s ease, visibility 0.8s ease; 
+        }
+        
+        .welcome-text { 
+            font-size: 28px; font-weight: bold; color: #ffffff; 
+            text-align: center; padding: 0 20px;
+            text-shadow: 0 0 10px #ffffff, 0 0 20px #aaaaaa; 
+            animation: explodeEffect 2s cubic-bezier(0.175, 0.885, 0.32, 1.275) infinite alternate; 
+        }
+
+        @keyframes explodeEffect {
+            0% { transform: scale(0.5); opacity: 0; filter: blur(10px); }
+            50% { transform: scale(1.15); opacity: 1; filter: blur(0px); text-shadow: 0 0 25px #ffffff, 0 0 45px #cccccc; }
+            100% { transform: scale(1); opacity: 1; text-shadow: 0 0 15px #ffffff; }
+        }
+
+        .fade-out { opacity: 0; visibility: hidden; transform: scale(1.2); }
+
+        /* GIAO DIỆN CHÍNH - LIQUID GLASS (KÍNH LỎNG TRONG SUỐT) */
+        .card { 
+            background: rgba(10, 10, 10, 0.7); 
+            backdrop-filter: blur(16px); 
+            -webkit-backdrop-filter: blur(16px);
+            padding: 30px; border-radius: 20px; 
+            box-shadow: 0 15px 35px rgba(255,255,255,0.15); 
+            width: 480px; text-align: center; 
+            border: 2px solid rgba(255, 255, 255, 0.8); 
+            max-height: 92vh; overflow-y: auto; 
+        }
+        
+        .app-header { 
+            display: flex; align-items: center; gap: 15px; 
+            background: rgba(20, 20, 20, 0.4); 
+            backdrop-filter: blur(10px);
+            padding: 15px; border-radius: 14px; 
+            border: 1.5px solid rgba(255, 255, 255, 0.7); 
+            margin-bottom: 18px; text-align: left; 
+            box-shadow: inset 0 0 12px rgba(255,255,255,0.15); 
+        }
+        
+        .app-logo { width: 75px; height: 75px; border-radius: 16px; object-fit: cover; border: 2px solid #ffffff; background: rgba(0,0,0,0.5); flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #ffffff; font-size: 34px; font-style: italic; box-shadow: 0 0 10px rgba(255,255,255,0.3); }
+        
+        .header-info { display: flex; flex-direction: column; gap: 6px; overflow: hidden; width: 100%; }
+        .app-title { font-size: 18px; font-weight: bold; color: #ffffff; margin: 0; text-transform: uppercase; }
+        
+        .uid-badge { background: rgba(0, 0, 0, 0.6); padding: 6px 10px; border-radius: 8px; border: 1px dashed rgba(255, 255, 255, 0.8); font-family: monospace; color: #ffffff; font-size: 13px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        p { font-size: 15px; color: #dddddd; line-height: 1.5; margin: 10px 0; }
+        
+        /* CÁC NÚT BẤM TRONG SUỐT 60% */
+        button { 
+            width: 100%; padding: 14px; margin-top: 10px; border-radius: 10px; 
+            color: #ffffff; font-weight: bold; font-size: 16px; cursor: pointer; 
+            transition: 0.2s; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+        }
+        
+        .btn-primary { 
+            background: rgba(255, 255, 255, 0.4); 
+            color: #ffffff; 
+            border: 1.5px solid rgba(255, 255, 255, 0.7); 
+        }
+        .btn-primary:hover { background: rgba(255, 255, 255, 0.6); }
+
+        .btn-ff { 
+            background: rgba(255, 255, 255, 0.4); 
+            color: #ffffff; 
+            margin-bottom: 12px; font-size: 17px; 
+            border: 1.5px solid rgba(255, 255, 255, 0.7); 
+        }
+        .btn-ff:hover { background: rgba(255, 255, 255, 0.6); }
+
+        .btn-exit { 
+            background: rgba(30, 30, 30, 0.4); 
+            color: #ffffff; 
+            border: 1.5px solid rgba(255, 255, 255, 0.7); 
+        }
+        .btn-exit:hover { background: rgba(50, 50, 50, 0.6); }
+        
+        .instructions { background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(8px); padding: 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.6); font-size: 14px; color: #eeeeee; text-align: left; margin-bottom: 18px; }
+        .instructions ol { margin: 0; padding-left: 20px; }
+        
+        .message { margin-top: 10px; font-size: 14px; font-weight: bold; }
+        .hidden { display: none; }
+
+        /* LOADING KHI CHỌN GAME */
+        #loadingScreen { display: none; padding: 40px 0; }
+        .spinner { width: 45px; height: 45px; border: 5px solid rgba(255,255,255,0.2); border-top: 5px solid #ffffff; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 15px auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* MOD MENU STYLES */
+        .menu-tabs { display: flex; gap: 8px; margin-bottom: 15px; background: rgba(10, 10, 10, 0.4); backdrop-filter: blur(8px); padding: 6px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.6); }
+        .tab-btn { flex: 1; padding: 10px; background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255,255,255,0.3); color: #aaaaaa; font-size: 15px; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.2s; backdrop-filter: blur(4px); }
+        .tab-btn.active { background: rgba(255, 255, 255, 0.4); color: #ffffff; border: 1.5px solid rgba(255, 255, 255, 0.8); box-shadow: 0 0 12px rgba(255,255,255,0.3); }
+
+        .feature-list { text-align: left; max-height: 240px; overflow-y: auto; padding-right: 5px; }
+        
+        /* CÁC MỤC (AIM, MOD, ĐỊNH VỊ) TRONG SUỐT 60% */
+        .feature-item { 
+            display: flex; justify-content: space-between; align-items: center; 
+            background: rgba(20, 20, 20, 0.4); /* Độ trong suốt 60% */
+            backdrop-filter: blur(10px); 
+            -webkit-backdrop-filter: blur(10px);
+            padding: 12px 16px; border-radius: 10px; margin-bottom: 8px; 
+            border: 1.5px solid rgba(255, 255, 255, 0.6); 
+            font-size: 15px; font-weight: bold; color: #ffffff; 
+            box-shadow: inset 0 0 8px rgba(255,255,255,0.08);
+        }
+        
+        /* TOGGLE SWITCH - TRONG SUỐT 60% */
+        .switch { position: relative; display: inline-block; width: 50px; height: 28px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(60, 60, 60, 0.4); backdrop-filter: blur(4px); transition: .3s; border-radius: 28px; border: 1.5px solid rgba(255, 255, 255, 0.7); }
+        .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 2px; bottom: 2px; background-color: rgba(255, 255, 255, 0.8); transition: .3s; border-radius: 50%; }
+        input:checked + .slider { background-color: rgba(255, 255, 255, 0.5); }
+        input:checked + .slider:before { background-color: #000000; transform: translateX(22px); }
+
+        /* ADMIN NOTICE BOX - TRONG SUỐT 60% */
+        .admin-box { 
+            background: rgba(10, 10, 10, 0.4); 
+            backdrop-filter: blur(10px); 
+            border: 1.5px solid rgba(255, 255, 255, 0.6); 
+            padding: 12px; border-radius: 10px; font-size: 13px; text-align: left; margin-top: 15px; color: #ffffff; 
+        }
+        .admin-box a { color: #ffffff; text-decoration: underline; font-weight: bold; }
+
+        #unmuteBtn { position: fixed; bottom: 20px; right: 20px; background: rgba(255,255,255,0.4); color: #ffffff; padding: 10px 16px; border-radius: 20px; font-size: 14px; font-weight: bold; cursor: pointer; z-index: 1000; box-shadow: 0 2px 10px rgba(255,255,255,0.4); display: none; border: 1.5px solid rgba(255,255,255,0.7); backdrop-filter: blur(4px); }
+    </style>
+</head>
+<body>
+
+    <div id="unmuteBtn" onclick="triggerVoice(true)">Loa 🔇</div>
+
+    <!-- MÀN HÌNH CHÀO HIỆU ỨNG NỔ TƯNG BỪNG -->
+    <div id="splashScreen">
+        <div class="welcome-text">Chào mừng đến với app AnModz proxy</div>
+    </div>
+
+    <!-- GIAO DIỆN CHÍNH -->
+    <div class="card" id="mainApp" style="display: none;">
+        
+        <!-- BƯỚC 1: XÁC THỰC UID & TẢI TỆP CẤU HÌNH -->
+        <div id="verifyScreen">
+            <div class="app-header">
+                <div class="app-logo">F</div>
+                <div class="header-info">
+                    <span class="app-title">AnModz iOS Config</span>
+                    <div class="uid-badge" id="displayUID1">UID: Đang tạo...</div>
+                </div>
+            </div>
+
+            <div class="instructions">
+                <strong>Quy trình xác thực UID thiết bị:</strong>
+                <ol>
+                    <li>Bấm tải tệp cấu hình `.mobileconfig`.</li>
+                    <li>Vào Cài đặt thiết bị để cài đặt.</li>
+                    <li>Đợi đếm ngược hoàn tất, hệ thống sẽ nhận UID và mở khóa.</li>
+                </ol>
+            </div>
+            
+            <button class="btn-primary" id="btnDownload" onclick="startInstallationProcess()">Tải Tệp Cấu Hình Định Danh</button>
+            <button class="btn-exit" onclick="exitApp()">Exit App</button>
+            
+            <div class="message" id="msg"></div>
+        </div>
+
+        <!-- BƯỚC 2: CHỌN PHIÊN BẢN FREE FIRE -->
+        <div id="selectGameScreen" class="hidden">
+            <div class="app-header">
+                <div class="app-logo">👑🇻🇳</div>
+                <div class="header-info">
+                    <span class="app-title" style="color: #ffffff;">Xác Thực UID Thành Công!</span>
+                    <div class="uid-badge" id="displayUID2">UID: ...</div>
+                </div>
+            </div>
+            <p>Vui lòng chọn phiên bản Free Fire:</p>
+            <button class="btn-ff" onclick="loadGameMenu('Free Fire Thường')">🔥 Free Fire Thường</button>
+            <button class="btn-ff" onclick="loadGameMenu('Free Fire MAX')">⚡ Free Fire MAX</button>
+            <button class="btn-exit" onclick="exitApp()">Exit App</button>
+        </div>
+
+        <!-- MÀN HÌNH LOADING KHI CHỌN GAME -->
+        <div id="loadingScreen" class="hidden">
+            <div class="spinner"></div>
+            <p style="color: #ffffff; font-weight: bold;" id="loadingText">Đang load tài nguyên...</p>
+        </div>
+
+        <!-- BƯỚC 3: MOD MENU CHÍNH -->
+        <div id="modMenuScreen" class="hidden">
+            <div class="app-header">
+                <div class="app-logo">F</div>
+                <div class="header-info">
+                    <span class="app-title" id="selectedGameTitle">Free Fire</span>
+                    <div class="uid-badge" id="displayUID3">UID: ...</div>
+                </div>
+            </div>
+
+            <!-- MENU TABS -->
+            <div class="menu-tabs">
+                <button class="tab-btn active" onclick="switchTab('aim')">Aim</button>
+                <button class="tab-btn" onclick="switchTab('mod')">Mod Skin</button>
+                <button class="tab-btn" onclick="switchTab('esp')">Định Vị</button>
+            </div>
+
+            <!-- TAB 1: AIM -->
+            <div id="tab-aim" class="feature-list">
+                <div class="feature-item"><span>Aim Neck (Cổ)</span><label class="switch"><input type="checkbox"><span class="slider"></span></label></div>
+                <div class="feature-item"><span>Aim Body (Thân)</span><label class="switch"><input type="checkbox"><span class="slider"></span></label></div>
+                <div class="feature-item"><span>Aim Drag (Kéo tâm)</span><label class="switch"><input type="checkbox"><span class="slider"></span></label></div>
+                <div class="feature-item"><span>Aim Drag 2.0</span><label class="switch"><input type="checkbox"><span class="slider"></span></label></div>
+                <div class="feature-item"><span>Aim Bụng</span><label class="switch"><input type="checkbox"><span class="slider"></span></label></div>
+                <div class="feature-item"><span>Aim Magic</span><label class="switch"><input type="checkbox"><span class="slider"></span></label></div>
+            </div>
+
+            <!-- TAB 2: MOD -->
+            <div id="tab-mod" class="feature-list hidden">
+                <div class="feature-item"><span>Mod Alok</span><label class="switch"><input type="checkbox"><span class="slider"></span></label></div>
+                <div class="feature-item"><span>Áo Đá Bóng Hồng</span><label class="switch"><input type="checkbox"><span class="slider"></span></label></div>
+                <div class="feature-item"><span>Áo Gojo</span><label class="switch"><input type="checkbox"><span class="slider"></span></label></div>
+            </div>
+
+            <!-- TAB 3: ĐỊNH VỊ -->
+            <div id="tab-esp" class="feature-list hidden">
+                <div class="feature-item"><span>Định Vị Nhân Vật</span><label class="switch"><input type="checkbox"><span class="slider"></span></label></div>
+                <div class="feature-item"><span>Định Vị 7 Màu</span><label class="switch"><input type="checkbox"><span class="slider"></span></label></div>
+                <div class="feature-item"><span>Định Vị Trong Suốt</span><label class="switch"><input type="checkbox"><span class="slider"></span></label></div>
+                <div class="feature-item"><span>Định Vị Không Màu</span><label class="switch"><input type="checkbox"><span class="slider"></span></label></div>
+            </div>
+
+            <!-- ADMIN NOTICE BOX -->
+            <div class="admin-box">
+                😊 <b>Admin: 0939.251990</b><br>
+                - Ban không chịu trách nhiệm, chơi ít lộ sẽ không ban.<br>
+                - App dựa trên VPN, không phải code 3105, filzaslop...<br>
+                - Box Zalo Proxy: <a href="https://zalo.me/g/zqhyprs1r73in5a6gfvn" target="_blank">Nhấn vào đây tham gia</a>
+            </div>
+
+            <button class="btn-exit" style="margin-top: 12px;" onclick="resetDevice()">Đăng Xuất / Đổi Game</button>
+        </div>
+
+    </div>
+
+<script>
+    function triggerVoice(forced = false) {
+        const text = "Chào mừng đến với app crack AnModz";
+        if (!('speechSynthesis' in window)) return;
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'vi-VN';
+        utterance.rate = 0.95;
+        utterance.pitch = 1;
+        utterance.onerror = function(event) {
+            if (event.error === 'not-allowed') {
+                document.getElementById('unmuteBtn').style.display = 'block';
+            }
+        };
+        window.speechSynthesis.speak(utterance);
+        if(forced) {
+            document.getElementById('unmuteBtn').style.display = 'none';
+        }
+    }
+
+    setTimeout(() => {
+        triggerVoice(false);
+        const splash = document.getElementById('splashScreen');
+        splash.classList.add('fade-out');
+        setTimeout(() => {
+            splash.style.display = 'none';
+            document.getElementById('mainApp').style.display = 'block';
+        }, 800);
+    }, 500);
+
+    let currentUID = "";
+
+    window.onload = function() {
+        let savedUID = localStorage.getItem("device_uid");
+        let isInstalled = localStorage.getItem("ios_config_installed");
+        let selectedGame = localStorage.getItem("selected_game");
+
+        if (isInstalled === "true" && savedUID) {
+            if (selectedGame) {
+                showModMenu(savedUID, selectedGame);
+            } else {
+                showSelectGameScreen(savedUID);
+            }
+        } else {
+            currentUID = "UID_" + Math.floor(100000 + Math.random() * 900000);
+            localStorage.setItem("temp_uid", currentUID);
+            document.getElementById("displayUID1").innerText = currentUID;
+        }
+    };
+
+    function startInstallationProcess() {
+        currentUID = localStorage.getItem("temp_uid") || "UID_999999";
+        const msg = document.getElementById("msg");
+        const btn = document.getElementById("btnDownload");
+        
+        btn.disabled = true;
+        btn.style.opacity = "0.6";
+        msg.style.color = "#ffffff";
+        msg.innerText = "Đang tạo tệp định danh UID...";
+
+        setTimeout(() => {
+            const plistContent = `<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>PayloadDisplayName</key>
+    <string>AnModz UID: ${currentUID}</string>
+    <key>PayloadIdentifier</key>
+    <string>com.anmodz.uid.${currentUID}</string>
+    <key>PayloadType</key>
+    <string>Configuration</string>
+    <key>PayloadUUID</key>
+    <string>A1B2C3D4-E5F6-7890-ABCD-${currentUID}</string>
+    <key>PayloadVersion</key>
+    <integer>1</integer>
+</dict>
+</plist>`;
+
+            const blob = new Blob([plistContent], { type: "application/x-apple-aspen-config" });
+            const link = document.createElement("a");
+            link.href = window.URL.createObjectURL(blob);
+            link.download = "AnModz_" + currentUID + ".mobileconfig";
+            link.click();
+
+            let countdown = 10;
+            msg.style.color = "#cccccc";
+            
+            let timer = setInterval(() => {
+                msg.innerText = `⏳ Đang xác thực UID thiết bị... (${countdown}s)`;
+                countdown--;
+
+                if (countdown < 0) {
+                    clearInterval(timer);
+                    localStorage.setItem("ios_config_installed", "true");
+                    localStorage.setItem("device_uid", currentUID);
+                    showSelectGameScreen(currentUID);
+                }
+            }, 1000);
+
+        }, 1000);
+    }
+
+    function showSelectGameScreen(uid) {
+        document.getElementById("verifyScreen").classList.add("hidden");
+        document.getElementById("selectGameScreen").classList.remove("hidden");
+        document.getElementById("displayUID2").innerText = "UID: " + uid;
+    }
+
+    function loadGameMenu(gameName) {
+        document.getElementById("selectGameScreen").classList.add("hidden");
+        document.getElementById("loadingScreen").classList.remove("hidden");
+        document.getElementById("loadingText").innerText = "Đang load tài nguyên " + gameName + "...";
+
+        setTimeout(() => {
+            localStorage.setItem("selected_game", gameName);
+            let uid = localStorage.getItem("device_uid");
+            showModMenu(uid, gameName);
+        }, 1500);
+    }
+
+    function showModMenu(uid, gameName) {
+        document.getElementById("loadingScreen").classList.add("hidden");
+        document.getElementById("selectGameScreen").classList.add("hidden");
+        document.getElementById("verifyScreen").classList.add("hidden");
+        document.getElementById("modMenuScreen").classList.remove("hidden");
+        
+        document.getElementById("selectedGameTitle").innerText = gameName;
+        document.getElementById("displayUID3").innerText = "UID: " + uid;
+    }
+
+    function switchTab(tabName) {
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.getElementById('tab-aim').classList.add('hidden');
+        document.getElementById('tab-mod').classList.add('hidden');
+        document.getElementById('tab-esp').classList.add('hidden');
+
+        if (tabName === 'aim') {
+            document.getElementById('tab-aim').classList.remove('hidden');
+            event.target.classList.add('active');
+        } else if (tabName === 'mod') {
+            document.getElementById('tab-mod').classList.remove('hidden');
+            event.target.classList.add('active');
+        } else if (tabName === 'esp') {
+            document.getElementById('tab-esp').classList.remove('hidden');
+            event.target.classList.add('active');
+        }
+    }
+
+    function resetDevice() {
+        localStorage.removeItem("ios_config_installed");
+        localStorage.removeItem("device_uid");
+        localStorage.removeItem("selected_game");
+        localStorage.removeItem("temp_uid");
+        window.location.href = window.location.pathname;
+    }
+
+    function exitApp() {
+        if (confirm("Bạn có chắc chắn muốn thoát ứng dụng không?")) {
+            window.close();
+            window.location.href = "about:blank";
+        }
+    }
+</script>
+
+</body>
+</html>
